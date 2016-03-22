@@ -8,7 +8,7 @@ namespace DisposePatternExtension
 {
     public class DisposeBase : IDisposable
     {
-        public void Dispose()
+        public virtual void Dispose()
         {
             Console.WriteLine("Type injected disposable!");
         }

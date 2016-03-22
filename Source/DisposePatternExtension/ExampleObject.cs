@@ -1,5 +1,4 @@
-﻿using Microsoft.Practices.ObjectBuilder2;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace DisposePatternExtension
 {
-    public class DisposePolicy : IBuilderPolicy
+    public class ExampleObject : DisposeBase
     {
+        public override void Dispose()
+        {
+            base.Dispose();
+        }
     }
 }

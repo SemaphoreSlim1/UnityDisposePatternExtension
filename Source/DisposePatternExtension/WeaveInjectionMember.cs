@@ -8,11 +8,15 @@ using Microsoft.Practices.ObjectBuilder2;
 
 namespace DisposePatternExtension
 {
-    public class DisposeInjectionMember : InjectionMember
+    public class WeaveInjectionMember<TInterface, TImplementation> : InjectionMember
+        where TImplementation : TInterface
     {
         public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
         {
-            var policy = new DisposePolicy();
+            var policy = new WeavePolicy();
+            policy.WeaveInterfaceType = typeof(TInterface);
+            policy.WeaveProviderType = typeof(TImplementation);
+
             var key = new NamedTypeBuildKey(implementationType, name);
             policies.Set(policy, key);
         }

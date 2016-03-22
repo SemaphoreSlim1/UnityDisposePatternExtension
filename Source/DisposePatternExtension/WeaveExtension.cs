@@ -11,33 +11,37 @@ using System.Threading.Tasks;
 
 namespace DisposePatternExtension
 {
-    public class DisposeExtension : UnityContainerExtension
+    public class WeaveExtension : UnityContainerExtension
     {
         protected override void Initialize()
         {
-            var strategy = new DisposeBuilderStrategy(Container);
+            var strategy = new WeaveBuilderStrategy(Container);
             Context.Strategies.Add(strategy,UnityBuildStage.PreCreation);
         }
     }
 
-    internal class DisposeBuilderStrategy : BuilderStrategy
+    internal class WeaveBuilderStrategy : BuilderStrategy
     {
         private IUnityContainer container;
 
-        public DisposeBuilderStrategy(IUnityContainer container)
+        public WeaveBuilderStrategy(IUnityContainer container)
         {
             this.container = container;
         }
 
         public override void PreBuildUp(IBuilderContext context)
         {
-            var policy = context.Policies.Get<DisposePolicy>(context.BuildKey);
+            var policy = context.Policies.Get<WeavePolicy>(context.BuildKey);
 
             if(policy == null)
             { return; } //this isn't an object we want to intercept with our behavior            
 
             var targetType = context.BuildKey.Type;
-            var newType = Emitter.CreateType(targetType);
+            var weaveInterfaceType = policy.WeaveInterfaceType;
+            var weaveProviderType = policy.WeaveProviderType;
+            
+            var newType = Emitter.Weave(targetType, weaveInterfaceType, weaveProviderType);
+
             var newKey = new NamedTypeBuildKey(newType, context.BuildKey.Name);
 
             var inst = context.NewBuildUp(newKey);

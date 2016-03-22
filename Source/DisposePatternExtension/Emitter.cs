@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,37 +13,65 @@ namespace DisposePatternExtension
 {
     public static class Emitter
     {
-        public static Type CreateType(Type baseType)
-        {
+        public static Type Weave(Type baseType, Type interfaceType, Type weaveProviderType)
+        {            
+            var interfaceMethodInfos = interfaceType.GetMethods();
+
             // create a dynamic assembly and module 
             AssemblyName assemblyName = new AssemblyName();
             assemblyName.Name = "tmpAssembly";
             AssemblyBuilder assemblyBuilder = Thread.GetDomain().DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             ModuleBuilder module = assemblyBuilder.DefineDynamicModule("tmpModule");
 
-            // create a new type builder
-            var typeBuilder = module.DefineType("Disposable_" + baseType.Name, TypeAttributes.Public | TypeAttributes.Class,baseType);
+            // create a new type builder            
+            var typeBuilder = module.DefineType(weaveProviderType.Name + "_" + baseType.Name, TypeAttributes.Public | TypeAttributes.Class,baseType);
             CreatePassThroughConstructors(typeBuilder, baseType);
 
-            typeBuilder.AddInterfaceImplementation(typeof(IDisposable));
-            var disposeMethod = typeBuilder.DefineMethod("Dispose", MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), Type.EmptyTypes);
+            typeBuilder.AddInterfaceImplementation(interfaceType);
 
-            
-            var disposeBaseType = typeof(DisposeBase);
-            var disposeBaseMethodInfo = disposeBaseType.GetMethod("Dispose", Type.EmptyTypes);
-            var disposeBaseMethodBody = disposeBaseMethodInfo.GetMethodBody();
-            var disposeBaseMethodBodyIL = disposeBaseMethodBody.GetILAsByteArray();
-                      
+            var methodBuilders = new Dictionary<string, MethodBuilder>();
 
-            var emitter = disposeMethod.GetILGenerator();
-            emitter.Emit(OpCodes.Call, disposeBaseMethodInfo);
-            
+            foreach(var interfaceMethodInfo in interfaceMethodInfos)
+            {
+                //define the method and its parameters based on the interface definition
+                var methodName = interfaceMethodInfo.Name;
+                var returnType = interfaceMethodInfo.ReturnType;
+                var parameterTypes = interfaceMethodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
+
+                var methodBuilder = typeBuilder.DefineMethod(methodName,
+                                                            MethodAttributes.Public | MethodAttributes.Virtual,
+                                                            returnType,parameterTypes);
+
+                //set the method signature
+                methodBuilder.SetSignature(returnType, null, null, parameterTypes, null, null);
+
+                //provide a pass-through implementation
+
+                //get a reference to the "base" method
+                var weavedMethodInfo = weaveProviderType.GetMethod(methodName);
+
+                //emit the IL
+                var emitter = methodBuilder.GetILGenerator();
+                emitter.Emit(OpCodes.Nop);
+                emitter.Emit(OpCodes.Ldarg_0);
+                emitter.Emit(OpCodes.Call, weavedMethodInfo);
+                emitter.Emit(OpCodes.Nop);
+                emitter.Emit(OpCodes.Ret);
+                
+
+                //then signal to the type that our new method implements the interface method
+                typeBuilder.DefineMethodOverride(methodBuilder, interfaceMethodInfo);
+
+                //save the method builder, as we'll need it later
+                methodBuilders[methodName] = methodBuilder;
+            }
+
+            //now complete the type
+            var weavedType = typeBuilder.CreateType();          
 
 
-            typeBuilder.DefineMethodOverride(disposeMethod, typeof(IDisposable).GetMethod("Dispose"));
-            var intermediateType = typeBuilder.CreateType();
-
-            return typeBuilder.CreateType();
+            //finally return our new, dynamically created, weaved type
+            return weavedType;
         }
 
         /// <summary>Creates one constructor for each public constructor in the base class. Each constructor simply
@@ -96,9 +125,7 @@ namespace DisposePatternExtension
                 }
                 emitter.Emit(OpCodes.Call, constructor);
 
-                emitter.Emit(OpCodes.Ret);
-
-                
+                emitter.Emit(OpCodes.Ret);                
             }
         }
 

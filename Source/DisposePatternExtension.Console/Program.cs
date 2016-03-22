@@ -1,10 +1,6 @@
 ﻿using DisposePatternExtension.Console.Example;
 using Microsoft.Practices.Unity;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DisposePatternExtension.Console
 {
@@ -14,9 +10,9 @@ namespace DisposePatternExtension.Console
         {
             //instantiate the container and the extension
             var container = new UnityContainer();
-            container.AddNewExtension<DisposeExtension>();
+            container.AddNewExtension<WeaveExtension>();
 
-            container.RegisterType<ICustomObject, CustomObject>(new DisposeInjectionMember());
+            container.RegisterType<ICustomObject, CustomObject>(new WeaveInjectionMember<IDisposable, DisposeBase>());
 
             var obj = container.Resolve<ICustomObject>();
 
