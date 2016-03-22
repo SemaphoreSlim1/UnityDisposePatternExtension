@@ -1,7 +1,6 @@
 # UnityDisposePatternExtension
 
-Aspect Oriented programming is one of those paradigms that allows us to separate cross cutting concerns. 
-One of the methods that unity provides us with, is the interceptor pattern.
+Aspect Oriented programming is one of those paradigms that allows us to separate cross cutting concerns.
 
 In this repository, I show a "weaving"/composition pattern using a custom unity builder strategy using a common implementation of IDisposable.
 
