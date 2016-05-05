@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DisposePatternExtension
 {
-    public class WeavePolicy : IBuilderPolicy
+    public class TypeWeavePolicy : IBuilderPolicy
     {
         public Type WeaveInterfaceType { get; set; }
         public Type WeaveProviderType { get; set; }

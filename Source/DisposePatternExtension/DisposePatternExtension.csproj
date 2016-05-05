@@ -56,11 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DisposeBase.cs" />
-    <Compile Include="ExampleObject.cs" />
-    <Compile Include="WeaveExtension.cs" />
-    <Compile Include="WeaveInjectionMember.cs" />
-    <Compile Include="WeavePolicy.cs" />
+    <Compile Include="TypeWeaveExtension.cs" />
+    <Compile Include="TypeWeavingInjectionMember.cs" />
+    <Compile Include="TypeWeavePolicy.cs" />
     <Compile Include="Emitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

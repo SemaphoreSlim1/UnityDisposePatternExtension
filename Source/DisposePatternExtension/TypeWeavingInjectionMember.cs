@@ -13,7 +13,7 @@ namespace DisposePatternExtension
     {
         public override void AddPolicies(Type serviceType, Type implementationType, string name, IPolicyList policies)
         {
-            var policy = new WeavePolicy();
+            var policy = new TypeWeavePolicy();
             policy.WeaveInterfaceType = typeof(TInterface);
             policy.WeaveProviderType = typeof(TImplementation);
 

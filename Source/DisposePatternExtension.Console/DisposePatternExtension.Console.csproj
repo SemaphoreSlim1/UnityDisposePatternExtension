@@ -73,6 +73,10 @@
       <Project>{458d1770-e148-4d29-847b-8ea122efab01}</Project>
       <Name>DisposePatternExtension</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Patterns\Patterns.csproj">
+      <Project>{a8b6f673-8da0-4400-9d07-84c4404fe40a}</Project>
+      <Name>Patterns</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

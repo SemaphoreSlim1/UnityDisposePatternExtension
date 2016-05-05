@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DisposePatternExtension
 {
-    public class WeaveExtension : UnityContainerExtension
+    public class TypeWeaveExtension : UnityContainerExtension
     {
         protected override void Initialize()
         {
@@ -31,7 +31,7 @@ namespace DisposePatternExtension
 
         public override void PreBuildUp(IBuilderContext context)
         {
-            var policy = context.Policies.Get<WeavePolicy>(context.BuildKey);
+            var policy = context.Policies.Get<TypeWeavePolicy>(context.BuildKey);
 
             if(policy == null)
             { return; } //this isn't an object we want to intercept with our behavior            
